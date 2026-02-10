@@ -1,29 +1,31 @@
-<!doctype html>
-<html lang="lt">
-<head>
-  <meta charset="utf-8">
-  <title>1..10</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-  <h1>Sveiki, aš esu {{ vardas }}</h1>
-  <p> Raskite musu forma paspaude <a href="{{url_for('forma')}}">čia</a></p>
-  <h2>Skaičiai nuo 1 iki 10</h2>
+{% block title %}Mano Puslapis{% endblock %}
 
+{% block turinys %} 
+    
+    <div class="row">
+        <div class="col-md-8">
+            <h1 class="display-4 fw-bold">Sveiki, aš esu {{ vardas }}</h1>
+            
+            <div class="alert alert-light border shadow-sm" role="alert">
+                Raskite mūsų formą paspaudę <a href="{{url_for('forma')}}" class="btn btn-primary btn-sm ms-2">čia</a>
+            </div>
 
-  <ul>
-    {% for skaicius in numbers %}
+            <h2 class="mt-4 mb-3 text-secondary">Skaičiai nuo 1 iki 10</h2>
 
-    {% if skaicius % 2 == 0 %}
-      <li style="color: blue;">{{ skaicius }}</li>
-    {% else %}
-      <li>{{ skaicius }}</li>
-    {% endif %}
+            <ul class="list-group w-50">
+                {% for skaicius in numbers %}
 
-    {% endfor %}
-  </ul>
+                    {% if skaicius % 2 == 0 %}
+                        <li class="list-group-item text-primary fw-bold">{{ skaicius }}</li>
+                    {% else %}
+                        <li class="list-group-item">{{ skaicius }}</li>
+                    {% endif %}
 
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
 
-
-</body>
-</html>
+{% endblock %}

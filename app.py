@@ -82,19 +82,77 @@
 
 
 
-from flask import Flask, render_template, request, url_for, redirect
+# from flask import Flask, render_template, request, url_for, redirect
+# from flask_sqlalchemy import SQLAlchemy
+# from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+
+# # 1. Sukuriame bazinę klasę (reikalinga Flask-SQLAlchemy 3.0+)
+# class Base(DeclarativeBase):
+#     pass
+
+# app = Flask(__name__)
+# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///duomenys.db"
+
+# # 2. Inicializuojame db nurodant model_class
+# db = SQLAlchemy(app, model_class=Base)
+
+# # 3. Modernus modelio aprašymas
+# class User(db.Model):
+#     __tablename__ = "users"  # Nurodome lentelės pavadinimą
+#     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+#     vardas: Mapped[str] = mapped_column(db.String(100), nullable=False)
+
+
+# # db.create_all()  # Sukuriame lenteles duomenų bazėje pagal aprašytus modelius
+# @app.route("/") # dekoratorius (/ pagrindinis google.com)
+# def home():
+#     skaiciai = [1,3,4,986,865,4,9865,1,65,54,46156,1,56165,561,1,56,15,1,156,156,156,65,4,484,8948,9915,925,259,591,145,8,65,156]
+#     return render_template("index.html", numbers=skaiciai, vardas="Jonas") # paimti ir atvaizduoti nurodyta html faila
+
+# @app.route("/apie") 
+# def about():
+#     return render_template("about.html")
+
+# @app.route("/forma", methods=["GET","POST"])  # atvaizduoti forma
+# def forma():
+#     if request.method == "POST":
+#         vardas = request.form["vardas"]
+
+#         naujas_vartotojas = User(vardas=vardas)
+#         db.session.add(naujas_vartotojas)
+#         db.session.commit()
+
+#         return redirect(url_for("home"))
+#     else:
+#         return render_template("forma.html")
+
+
+
+
+# if __name__ == "__main__": # Tikrina ar cia yra failas kuris yra paleidziamas ar tik importuojamas
+#     # tiesa tik tuo atveju jeigu jis yra paleidziamas kaip pagrindinis, o ne importuojamas
+#     with app.app_context():  # Užtikriname, kad esame aplikacijos kontekste
+#         db.create_all()
+#     app.run(debug=True) # Rodo platesnius klaidu pranesimus su debug=True
+
+from flask import Flask, flash, render_template, request, url_for, redirect
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from flask_migrate import Migrate
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, SubmitField
+from wtforms.validators import DataRequired
 
 # 1. Sukuriame bazinę klasę (reikalinga Flask-SQLAlchemy 3.0+)
 class Base(DeclarativeBase):
     pass
 
 app = Flask(__name__)
+app.secret_key = "supersecret" # Reikalinga flash žinutėms, gali būti bet koks stringas
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///duomenys.db"
-
 # 2. Inicializuojame db nurodant model_class
 db = SQLAlchemy(app, model_class=Base)
+migrate = Migrate(app, db)
 
 # 3. Modernus modelio aprašymas
 class User(db.Model):
@@ -102,6 +160,11 @@ class User(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     vardas: Mapped[str] = mapped_column(db.String(100), nullable=False)
 
+
+class LoginForm(FlaskForm):
+    username = StringField('Vards', validators=[DataRequired()]) # input fieldai
+    password = PasswordField('Password', validators=[DataRequired()])
+    submit = SubmitField('Submit')
 
 # db.create_all()  # Sukuriame lenteles duomenų bazėje pagal aprašytus modelius
 @app.route("/") # dekoratorius (/ pagrindinis google.com)
@@ -115,23 +178,33 @@ def about():
 
 @app.route("/forma", methods=["GET","POST"])  # atvaizduoti forma
 def forma():
-    if request.method == "POST":
-        vardas = request.form["vardas"]
+    try:
+        if request.method == "POST":
+            vardas = request.form["vardas"]
 
-        naujas_vartotojas = User(vardas=vardas)
-        db.session.add(naujas_vartotojas)
-        db.session.commit()
+            naujas_vartotojas = User(vardas=vardas)
+            db.session.add(naujas_vartotojas)
+            db.session.commit()
+            flash("Vartotojas sėkmingai pridėtas!")  # Pridedame flash žinutę
 
-        return redirect(url_for("home"))
-    else:
-        return render_template("forma.html")
+            return redirect(url_for("home"))
+        else:
+            form = LoginForm()
+            if form.validate_on_submit():
+                flash("Formos duomenys sėkmingai patvirtinti!")
+                return redirect(url_for("home"))
+            return render_template("forma.html", form=form)
+    except Exception as e:
+        flash(f"Įvyko klaida: {e}")
+        return redirect(url_for("forma"))
+
 
 
 
 
 if __name__ == "__main__": # Tikrina ar cia yra failas kuris yra paleidziamas ar tik importuojamas
     # tiesa tik tuo atveju jeigu jis yra paleidziamas kaip pagrindinis, o ne importuojamas
-    with app.app_context():  # Užtikriname, kad esame aplikacijos kontekste
-        db.create_all()
+    # with app.app_context():  # Užtikriname, kad esame aplikacijos kontekste
+    #     db.create_all()
     app.run(debug=True) # Rodo platesnius klaidu pranesimus su debug=True
 
