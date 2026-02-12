@@ -1,6 +1,6 @@
 from flask import Flask
 from config import Config
-from app.extensions import db, migrate
+from src.extensions import db, migrate
 
 
 def create_app(config_class=Config):
@@ -12,12 +12,12 @@ def create_app(config_class=Config):
     migrate.init_app(app, db)
 
     # Importuojame modelius, kad Flask-Migrate juos aptiktų
-    from app import models
+    from src import models
 
     # Registruojame blueprintus
-    from app.routes.main import main_bp
-    from app.routes.forms import forms_bp
-    from app.routes.users import forms_bp as users_bp
+    from src.routes.main import main_bp
+    from src.routes.forms import forms_bp
+    from src.routes.users import forms_bp as users_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(forms_bp)
