@@ -3,10 +3,10 @@
 {% block title %}Mano Puslapis{% endblock %}
 
 {% block turinys %} 
-<form method="POST" action="/forma">
+<form method="POST" action="{{ url_for('forms.forma') }}">
     {{ form.csrf_token }}
     {{ form.username.label }} {{ form.username }}
     {{ form.password.label }} {{ form.password }}
     {{ form.submit }}
 </form>
-    {% endblock %}
+{% endblock %}
