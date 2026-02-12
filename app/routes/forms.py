@@ -3,7 +3,7 @@ from app.extensions import db
 from app.models.user import User
 from app.forms.auth import LoginForm
 
-forms_bp = Blueprint("forms", __name__)
+forms_bp = Blueprint("forms", __name__) # susikuriu blueprintą forms, kuris bus naudojamas formų apdorojimui
 
 
 @forms_bp.route("/forma", methods=["GET", "POST"])

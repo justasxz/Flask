@@ -17,8 +17,10 @@ def create_app(config_class=Config):
     # Registruojame blueprintus
     from app.routes.main import main_bp
     from app.routes.forms import forms_bp
+    from app.routes.users import forms_bp as users_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(forms_bp)
+    app.register_blueprint(users_bp)
 
     return app
